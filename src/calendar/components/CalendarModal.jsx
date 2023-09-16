@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import Modal from "react-modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import { addHours, differenceInSeconds } from "date-fns";
+
+import { useUiStore, useCalendarStore } from "../../hooks";
 
 const customStyles = {
   content: {
@@ -22,7 +23,8 @@ const customStyles = {
 Modal.setAppElement("#root");
 
 export const CalendarModal = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isDateModalOpen, closeDateModal } = useUiStore();
+  const { activeEvent, startSavingEvent } = useCalendarStore();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formValues, setFormValues] = useState({
     title: "TomasDep",
@@ -34,6 +36,12 @@ export const CalendarModal = () => {
     if (!formSubmitted) return "";
     return formValues.title.length > 0 ? "" : "is-invalid";
   }, [formValues.title, formSubmitted]);
+  useEffect(() => {
+    if (activeEvent !== null) {
+      setFormValues({ ...activeEvent });
+    }
+  }, [activeEvent]);
+
   const onInputChanged = ({ target }) => {
     setFormValues({
       ...formValues,
@@ -47,9 +55,9 @@ export const CalendarModal = () => {
     });
   };
   const onCloseModal = () => {
-    setIsOpen(false);
+    closeDateModal();
   };
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     setFormSubmitted(true);
     const difference = differenceInSeconds(formValues.end, formValues.start);
@@ -58,10 +66,13 @@ export const CalendarModal = () => {
       return;
     }
     if (formValues.title.length <= 0) return;
+    await startSavingEvent(formValues);
+    closeDateModal();
+    setFormSubmitted(false);
   };
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={isDateModalOpen}
       onRequestClose={onCloseModal}
       style={customStyles}
       className="modal"
