@@ -37,3 +37,23 @@
   outline: none;
   padding: 10px;
 }
+
+.fab {
+  border-radius: 100%;
+  bottom: 25px;
+  font-size: 25px;
+  position: fixed;
+  right: 25px;
+  width: 55px;
+  height: 55px;
+}
+
+.fab-danger {
+  border-radius: 100%;
+  bottom: 25px;
+  font-size: 25px;
+  position: fixed;
+  left: 25px;
+  width: 55px;
+  height: 55px;
+}
